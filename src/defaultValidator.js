@@ -34,7 +34,7 @@ export default {
   // 整数
   interger (options) {
     options = Object.assign({ area: 'both' }, options)
-    return new RegExp(`^${utils.regex.number.areaLabelReflex[options.area]}\\d+$`) 
+    return new RegExp(`^${utils.regex.number.areaLabelReflex[options.area]}\\d+$`)
   },
   // 浮点数
   float (options) {
@@ -46,7 +46,7 @@ export default {
   // 数字比较
   max (options) {
     options = Object.assign({ max: Number.MAX_SAFE_INTEGER }, options)
-    return !Number.isNaN(+options.value) && (+options.value < +options.max) || `应不大于${options.max }`
+    return !Number.isNaN(+options.value) && (+options.value < +options.max) || `应不大于${options.max}`
   },
   min (options) {
     options = Object.assign({ min: Number.MIN_SAFE_INTEGER }, options)
