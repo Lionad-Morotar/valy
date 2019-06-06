@@ -137,8 +137,7 @@ var Valy = function Valy (rawValue, validItems) {
       result: null,
       errorMsg: null,
       rawValue: rawValue,
-      validItems: validItems,
-      rawValidItems: rawValidItems
+      validItems: validItems
     });
 };
 

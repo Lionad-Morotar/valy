@@ -17,8 +17,7 @@ export default class Valy {
         result: null,
         errorMsg: null,
         rawValue,
-        validItems,
-        rawValidItems
+        validItems
       })
   }
 
