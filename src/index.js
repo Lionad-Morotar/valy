@@ -1,7 +1,8 @@
 /* eslint-disable */
 
 function query2obj (query) {
-  let res = null, queryArr = query.split('&').filter(x => x)
+  const queryArr = query.split('&').filter(x => x)
+  let res = null
   try {
     res = JSON.parse(
       '{' +
@@ -13,9 +14,7 @@ function query2obj (query) {
           .join(',\n') +
       '}'
     )
-  }
-  catch (err) {
-    console.log(query)
+  } catch (err) {
     res = {}
   }
   return res
@@ -36,12 +35,9 @@ const comm = {
         'qq.com',
         '163.com',
         'vip.163.com',
-        '263.net',
-        'yeah.net',
         'sohu.com',
         'sina.cn',
         'sina.com',
-        'eyou.com',
         'gmail.com',
         'hotmail.com'
       ]
@@ -57,7 +53,6 @@ const comm = {
 }
 
 // 内置的校验器
-// TODO 可配置的内置校验器
 const validatorNameReflex = {
 
   /** social media */
@@ -84,6 +79,8 @@ const validatorNameReflex = {
   mobile: /^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\d{8}$/,
   // 身份证
   idcard: /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
+  // URL
+  url: options => /^((https?|ftp|file):\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/.test(options.value) || '不是正确的URL',
 
   /** number */
 
@@ -112,9 +109,7 @@ const validatorNameReflex = {
   /** general */
 
   // 必需值
-  required: options => /.+/.test(options.value) || '值缺失',
-  // URL
-  url: options => /^((https?|ftp|file):\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/.test(options.value) || '不是正确的URL',
+  required: options => (!['null', 'undefined'].includes(options.value) && /.+/.test(options.value) || '值缺失'),
 }
 
 /** Valy

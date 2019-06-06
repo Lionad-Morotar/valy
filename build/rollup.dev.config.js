@@ -14,7 +14,6 @@ export default [{
     getPlugin('resolve'),
     getPlugin('commonjs'),
     getPlugin('babel'),
-    getPlugin('uglify'),
     getPlugin('filesize')
   ].filter(p => p)
 }]
