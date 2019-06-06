@@ -1,7 +1,5 @@
 'use strict';
 
-/* eslint-disable */
-
 function query2obj (query) {
   var queryArr = query.split('&').filter(function (x) { return x; });
   var res = null;
@@ -24,8 +22,14 @@ function query2obj (query) {
   return res
 }
 
-// 校验用到的工具函数或工具对象
-var comm = {
+var utils = {
+
+  /** utils */
+
+  query2obj: query2obj,
+
+  /** common */
+
   regex: {
     count: function count (countStr) {
       if (countStr === '*') {
@@ -54,10 +58,10 @@ var comm = {
       }
     }
   }
-};
 
-// 内置的校验器
-var validatorNameReflex = {
+}
+
+var defaultValidator = {
 
   /** social media */
 
@@ -77,7 +81,7 @@ var validatorNameReflex = {
   },
   // 常用邮箱
   email_general: function email_general () {
-    return new RegExp(("^([A-Za-z0-9_\\-\\.])+\\@(" + (comm.regex.email.whiteLists.join('|')) + ")$"))
+    return new RegExp(("^([A-Za-z0-9_\\-\\.])+\\@(" + (utils.regex.email.whiteLists.join('|')) + ")$"))
   },
   // 手机号码
   mobile: /^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\d{8}$/,
@@ -91,12 +95,12 @@ var validatorNameReflex = {
   // 整数
   interger: function interger (options) {
     options = Object.assign({ area: 'both' }, options);
-    return new RegExp(("^" + (comm.regex.number.areaLabelReflex[options.area]) + "\\d+$")) 
+    return new RegExp(("^" + (utils.regex.number.areaLabelReflex[options.area]) + "\\d+$"))
   },
   // 浮点数
   float: function float (options) {
     options = Object.assign({ area: 'both', count: '*' }, options);
-    return new RegExp(("^" + (comm.regex.number.areaLabelReflex[options.area]) + "\\d*\\.\\d" + (comm.regex.count(options.count)) + "$"))
+    return new RegExp(("^" + (utils.regex.number.areaLabelReflex[options.area]) + "\\d*\\.\\d" + (utils.regex.count(options.count)) + "$"))
   },
   // 数字
   number: 'interger||float',
@@ -114,7 +118,9 @@ var validatorNameReflex = {
 
   // 必需值
   required: function (options) { return (!['null', 'undefined'].includes(options.value) && /.+/.test(options.value) || '值缺失'); },
-};
+}
+
+/* eslint-disable */
 
 /** Valy
  * @description Valy校验器, 可以使用两种方式调用:
@@ -123,41 +129,17 @@ var validatorNameReflex = {
  * @param {Any} rawValue 待校验的值
  * @param {Array, Regex, Function} validItems 待校验的选项
  */
-var Valy = function Valy (ref) {
-  if ( ref === void 0 ) ref = { rawValue: undefined };
-  var rawValue = ref.rawValue;
-  var rawValidItems = ref.rawValidItems;
+var Valy = function Valy (rawValue, validItems) {
+    if ( validItems === void 0 ) validItems = [];
 
-  var argLen = arguments.length;
-  var arg1 = arguments[0];
-  var arg2 = arguments[1];
-  // console.log('@@@@@@@@@@@@', argLen, arg1, arg2, this)
-  if (arg1 instanceof Object && !(arg1 instanceof Array)) {
     Object.assign(this, {
       pass: false,
       result: null,
+      errorMsg: null,
       rawValue: rawValue,
+      validItems: validItems,
       rawValidItems: rawValidItems
     });
-    this.exec();
-  } else if (argLen === 2) {
-    Object.assign(this, {
-      pass: false,
-      result: null,
-      rawValue: arg1,
-      rawValidItems: arg2
-    });
-    this.exec();
-  } else {
-    Object.assign(this, {
-      pass: false,
-      result: null,
-      rawValue: arg1,
-      rawValidItems: rawValidItems
-    });
-  }
-  this.errorMsg = null;
-  // console.log('@@@@@@@@@@@@', argLen, arg1, arg2, this)
 };
 
 Valy.prototype.toValid = function toValid (validItems, options) {
@@ -207,14 +189,14 @@ Valy.prototype.toValid = function toValid (validItems, options) {
         toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }));
       } else {
         var toFindHandle = validItems.split('?');
-        var handle = validatorNameReflex[toFindHandle[0]];
+        var handle = defaultValidator[toFindHandle[0]];
         if (!handle) {
           toValidResult = false;
           this.errorMsg = validItems;
           break
         }
         if (typeof handle === 'function') {
-          var params = query2obj("value=" + (this.rawValue) + "&" + (toFindHandle[1] || ''));
+          var params = utils.query2obj("value=" + (this.rawValue) + "&" + (toFindHandle[1] || ''));
           var handleFnRes = handle(params);
           // console.log('@@--1: ', handleFnRes)
           toValidResult = this.toValid(handleFnRes);

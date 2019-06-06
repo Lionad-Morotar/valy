@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import utils from './utils'
-import defaultValidator from 'defaultValidator.js'
+import defaultValidator from './defaultValidator.js'
 
 /** Valy
  * @description Valy校验器, 可以使用两种方式调用:
@@ -11,37 +11,15 @@ import defaultValidator from 'defaultValidator.js'
  * @param {Array, Regex, Function} validItems 待校验的选项
  */
 export default class Valy {
-  constructor ({ rawValue, rawValidItems } = { rawValue: undefined }) {
-    const argLen = arguments.length
-    const arg1 = arguments[0]
-    const arg2 = arguments[1]
-    // console.log('@@@@@@@@@@@@', argLen, arg1, arg2, this)
-    if (arg1 instanceof Object && !(arg1 instanceof Array)) {
+  constructor (rawValue, validItems = []) {
       Object.assign(this, {
         pass: false,
         result: null,
+        errorMsg: null,
         rawValue,
+        validItems,
         rawValidItems
       })
-      this.exec()
-    } else if (argLen === 2) {
-      Object.assign(this, {
-        pass: false,
-        result: null,
-        rawValue: arg1,
-        rawValidItems: arg2
-      })
-      this.exec()
-    } else {
-      Object.assign(this, {
-        pass: false,
-        result: null,
-        rawValue: arg1,
-        rawValidItems
-      })
-    }
-    this.errorMsg = null
-    // console.log('@@@@@@@@@@@@', argLen, arg1, arg2, this)
   }
 
   toValid (validItems, options = { stragedy: 'and' }) {
