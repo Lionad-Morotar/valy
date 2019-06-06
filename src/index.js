@@ -1,116 +1,7 @@
 /* eslint-disable */
 
-function query2obj (query) {
-  const queryArr = query.split('&').filter(x => x)
-  let res = null
-  try {
-    res = JSON.parse(
-      '{' +
-        queryArr
-          .map(x => {
-            const [key, value] = x.split('=')
-            return `"${key}":"${value}"`
-          })
-          .join(',\n') +
-      '}'
-    )
-  } catch (err) {
-    res = {}
-  }
-  return res
-}
-
-// 校验用到的工具函数或工具对象
-const comm = {
-  regex: {
-    count (countStr) {
-      if (countStr === '*') {
-        return '*'
-      } else {
-        return `{${countStr}}`
-      }
-    },
-    email: {
-      whiteLists: [
-        'qq.com',
-        '163.com',
-        'vip.163.com',
-        'sohu.com',
-        'sina.cn',
-        'sina.com',
-        'gmail.com',
-        'hotmail.com'
-      ]
-    },
-    number: {
-      areaLabelReflex: {
-        both: '-?',
-        neg: '-',
-        pos: ''
-      }
-    }
-  }
-}
-
-// 内置的校验器
-const validatorNameReflex = {
-
-  /** social media */
-
-  // 用户名
-  username (options) {
-    options = Object.assign({ min: 4, max: 16 }, options)
-    return new RegExp(`^[a-zA-Z][a-zA-Z0-9_-]{${options.min - 1},${options.max - 1}}$`)
-  },
-  // 中文用户名
-  username_cn (options) {
-    options = Object.assign({ min: 2, max: 8 }, options)
-    return new RegExp(`^[a-zA-Z\\u4E00-\\u9FA5][a-zA-Z0-9\\u4E00-\\u9FA5_-]{${options.min - 1},${options.max - 1}}$`)
-  },
-  // 邮箱
-  email () {
-    return new RegExp(`^([A-Za-z0-9_\\-\\.])+\\@([A-Za-z0-9_\\-\\.])+\\.([A-Za-z]{2,6})$`)
-  },
-  // 常用邮箱
-  email_general () {
-    return new RegExp(`^([A-Za-z0-9_\\-\\.])+\\@(${comm.regex.email.whiteLists.join('|')})$`)
-  },
-  // 手机号码
-  mobile: /^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\d{8}$/,
-  // 身份证
-  idcard: /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
-  // URL
-  url: options => /^((https?|ftp|file):\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/.test(options.value) || '不是正确的URL',
-
-  /** number */
-
-  // 整数
-  interger (options) {
-    options = Object.assign({ area: 'both' }, options)
-    return new RegExp(`^${comm.regex.number.areaLabelReflex[options.area]}\\d+$`) 
-  },
-  // 浮点数
-  float (options) {
-    options = Object.assign({ area: 'both', count: '*' }, options)
-    return new RegExp(`^${comm.regex.number.areaLabelReflex[options.area]}\\d*\\.\\d${comm.regex.count(options.count)}$`)
-  },
-  // 数字
-  number: 'interger||float',
-  // 数字比较
-  max (options) {
-    options = Object.assign({ max: Number.MAX_SAFE_INTEGER }, options)
-    return !Number.isNaN(+options.value) && (+options.value < +options.max) || `应不大于${options.max }`
-  },
-  min (options) {
-    options = Object.assign({ min: Number.MIN_SAFE_INTEGER }, options)
-    return !Number.isNaN(+options.value) && (+options.value > +options.min) || `应不小于${options.min}`
-  },
-
-  /** general */
-
-  // 必需值
-  required: options => (!['null', 'undefined'].includes(options.value) && /.+/.test(options.value) || '值缺失'),
-}
+import utils from './utils'
+import defaultValidator from 'defaultValidator.js'
 
 /** Valy
  * @description Valy校验器, 可以使用两种方式调用:
@@ -197,14 +88,14 @@ export default class Valy {
           toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }))
         } else {
           const toFindHandle = validItems.split('?')
-          const handle = validatorNameReflex[toFindHandle[0]]
+          const handle = defaultValidator[toFindHandle[0]]
           if (!handle) {
             toValidResult = false
             this.errorMsg = validItems
             break
           }
           if (typeof handle === 'function') {
-            const params = query2obj(`value=${this.rawValue}&` + (toFindHandle[1] || ''))
+            const params = utils.query2obj(`value=${this.rawValue}&` + (toFindHandle[1] || ''))
             const handleFnRes = handle(params)
             // console.log('@@--1: ', handleFnRes)
             toValidResult = this.toValid(handleFnRes)
