@@ -87,7 +87,7 @@ const validatorNameReflex = {
   // 整数
   interger (options) {
     options = Object.assign({ area: 'both' }, options)
-    return new RegExp(`^${comm.regex.number.areaLabelReflex[options.area]}\\d+$`)
+    return new RegExp(`^${comm.regex.number.areaLabelReflex[options.area]}\\d+$`) 
   },
   // 浮点数
   float (options) {
@@ -118,10 +118,9 @@ const validatorNameReflex = {
  *  2. new Valy('a1111').valid(['username', _ => _.length === 5]).check()
  * @param {Any} rawValue 待校验的值
  * @param {Array, Regex, Function} validItems 待校验的选项
- * @param {Boolean} debug 打开调试会时会打开一些log信息
  */
 export default class Valy {
-  constructor ({ rawValue, rawValidItems, debug = false } = { rawValue: undefined, debug: false }) {
+  constructor ({ rawValue, rawValidItems } = { rawValue: undefined }) {
     const argLen = arguments.length
     const arg1 = arguments[0]
     const arg2 = arguments[1]
@@ -131,8 +130,7 @@ export default class Valy {
         pass: false,
         result: null,
         rawValue,
-        rawValidItems,
-        debug
+        rawValidItems
       })
       this.exec()
     } else if (argLen === 2) {
@@ -140,8 +138,7 @@ export default class Valy {
         pass: false,
         result: null,
         rawValue: arg1,
-        rawValidItems: arg2,
-        debug
+        rawValidItems: arg2
       })
       this.exec()
     } else {
@@ -149,8 +146,7 @@ export default class Valy {
         pass: false,
         result: null,
         rawValue: arg1,
-        rawValidItems,
-        debug: false
+        rawValidItems
       })
     }
     this.errorMsg = null

@@ -91,7 +91,7 @@ var validatorNameReflex = {
   // 整数
   interger: function interger (options) {
     options = Object.assign({ area: 'both' }, options);
-    return new RegExp(("^" + (comm.regex.number.areaLabelReflex[options.area]) + "\\d+$"))
+    return new RegExp(("^" + (comm.regex.number.areaLabelReflex[options.area]) + "\\d+$")) 
   },
   // 浮点数
   float: function float (options) {
@@ -122,13 +122,11 @@ var validatorNameReflex = {
  *  2. new Valy('a1111').valid(['username', _ => _.length === 5]).check()
  * @param {Any} rawValue 待校验的值
  * @param {Array, Regex, Function} validItems 待校验的选项
- * @param {Boolean} debug 打开调试会时会打开一些log信息
  */
 var Valy = function Valy (ref) {
-  if ( ref === void 0 ) ref = { rawValue: undefined, debug: false };
+  if ( ref === void 0 ) ref = { rawValue: undefined };
   var rawValue = ref.rawValue;
   var rawValidItems = ref.rawValidItems;
-  var debug = ref.debug; if ( debug === void 0 ) debug = false;
 
   var argLen = arguments.length;
   var arg1 = arguments[0];
@@ -139,8 +137,7 @@ var Valy = function Valy (ref) {
       pass: false,
       result: null,
       rawValue: rawValue,
-      rawValidItems: rawValidItems,
-      debug: debug
+      rawValidItems: rawValidItems
     });
     this.exec();
   } else if (argLen === 2) {
@@ -148,8 +145,7 @@ var Valy = function Valy (ref) {
       pass: false,
       result: null,
       rawValue: arg1,
-      rawValidItems: arg2,
-      debug: debug
+      rawValidItems: arg2
     });
     this.exec();
   } else {
@@ -157,8 +153,7 @@ var Valy = function Valy (ref) {
       pass: false,
       result: null,
       rawValue: arg1,
-      rawValidItems: rawValidItems,
-      debug: false
+      rawValidItems: rawValidItems
     });
   }
   this.errorMsg = null;
