@@ -120,7 +120,7 @@ var defaultValidator = {
   required: function (options) { return (!['null', 'undefined'].includes(options.value) && /.+/.test(options.value) || '值缺失'); },
 }
 
-/* eslint-disable */
+var DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
 
 /** Valy
  * @description Valy校验器, 可以使用两种方式调用:
@@ -143,29 +143,34 @@ var Valy = function Valy (rawValue, validItems) {
 
 Valy.prototype.toValid = function toValid (validItems, options) {
     var this$1 = this;
-    if ( options === void 0 ) options = { stragedy: 'and' };
+    if ( validItems === void 0 ) validItems = this.rawValidItems;
 
-  var toValidResult = 'unexcepted valid result';
-  validItems = validItems == null ? this.rawValidItems : validItems;
-  // console.log('@@@ : ', typeof validItems, validItems)
 
+  /** default value */
+
+  options = Object.assign(DEFAULT_VALID_OPTIONS, options);
+
+  /** const */
+
+  var methods = {
+    'function': function () {
+      var fnResult = validItems(this$1.rawValue);
+        
+      return ['function', 'object'].includes(typeof fnResult)
+        ? this$1.toValid(fnResult)
+        : fnResult
+    },
+    'regexp': function () { return validItems.test(this$1.rawValue); }
+  };
+
+  /** vars */
+
+  var toValidResult = null;
+  
   switch (typeof validItems) {
-    case 'function':
-      // console.log('valid items type : function : ', this)
-      var fnResult = validItems(this.rawValue);
-      // console.log('@@', fnResult)
-      if (['function', 'object'].includes(typeof fnResult)) {
-        toValidResult = this.toValid(fnResult);
-      } else {
-        toValidResult = fnResult;
-      }
-      break
-
     case 'object':
-      // console.log('valid items type : object')
       if (Array.isArray(validItems)) {
         var toValidResultArr = validItems.map(function (x) { return this$1.toValid(x); });
-        // console.log('@@ : ', toValidResultArr)
         switch (options.stragedy) {
           case 'and':
             toValidResult = toValidResultArr.every(function (x) { return x === true; });
@@ -175,14 +180,13 @@ Valy.prototype.toValid = function toValid (validItems, options) {
             break
         }
       } else if (validItems instanceof RegExp) {
-        toValidResult = validItems.test(this.rawValue);
+        toValidResult = methods['regexp'].bind(this)();
       } else {
         throw new Error(("unsupported object type validItem : " + validItems))
       }
       break
 
     case 'string':
-      // console.log('valid items type : string')
       var validArr = validItems.split('||');
       if (validArr.length > 1) {
         toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }));
@@ -197,7 +201,6 @@ Valy.prototype.toValid = function toValid (validItems, options) {
         if (typeof handle === 'function') {
           var params = utils.query2obj("value=" + (this.rawValue) + "&" + (toFindHandle[1] || ''));
           var handleFnRes = handle(params);
-          // console.log('@@--1: ', handleFnRes)
           toValidResult = this.toValid(handleFnRes);
         } else {
           toValidResult = this.toValid(handle);
@@ -214,8 +217,7 @@ Valy.prototype.toValid = function toValid (validItems, options) {
       break
 
     default:
-      console.log(typeof this.validItems, this.validItems, "unsupported type of validItem");
-      throw new Error(("unsupported type of validItem : " + validItems))
+      toValidResult = methods[typeof validItems].bind(this)();
   }
 
   return toValidResult
@@ -241,7 +243,6 @@ Valy.prototype.format = function format (fn) {
 // 返回校验结果
 Valy.prototype.exec = function exec () {
   this.result = this.toValid();
-  // console.log(this.result)
   return this.result
 };
 

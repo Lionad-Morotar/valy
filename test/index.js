@@ -4,7 +4,7 @@ const Valy = require('../dist/index')
 const log = console.log
 const line = () => console.log('\n')
 
-log(new Valy().valid('required').getRes())
+// log(new Valy().valid('required').getRes())
 
 // log(new Valy(0).valid('required').getRes())
 // log(new Valy('').valid('required').getRes())
@@ -22,3 +22,11 @@ log(new Valy().valid('required').getRes())
 // line()
 
 // log(new Valy(55.01).valid(['max?max=55.011', 'min?min=49', '数字不为55']).getRes())
+
+// line()
+
+// log(new Valy(55.01).valid(_ => [ _ => [ _ => _ < 56 ] ]).getRes())
+
+
+log(new Valy(55.01).valid(/^55$/).getRes())
+log(new Valy(55.01).valid(/^55.01$/).getRes())
