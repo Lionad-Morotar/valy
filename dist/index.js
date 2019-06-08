@@ -146,8 +146,9 @@ var Valy = function Valy (rawValue, validItems) {
   return new Proxy(this, {
     get: function (target, key, receiver) {
       var findMap = maps.find(function (x) { return x.has(key); });
-      return findMap
-        ? function (params) {
+      return !findMap
+        ? Reflect.get(target, key, receiver)
+        : function (params) {
           if ( params === void 0 ) params = {};
 
           var handle = findMap.get(key);
@@ -158,7 +159,6 @@ var Valy = function Valy (rawValue, validItems) {
           );
           return receiver
         }
-        : Reflect.get(target, key, receiver)
     }
   })
 };
@@ -210,7 +210,7 @@ Valy.prototype.toValid = function toValid (validItems, options) {
         toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }));
       } else {
         var toFindHandle = validItems.split('?');
-        var handle = insideValidator[toFindHandle[0]];
+        var handle = maps.find(function (x) { return x.has(toFindHandle[0]); }).get(toFindHandle[0]);
         if (!handle) {
           toValidResult = false;
           this.errorMsg = validItems;

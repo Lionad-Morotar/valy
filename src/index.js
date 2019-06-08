@@ -25,8 +25,9 @@ class Valy {
     return new Proxy(this, {
       get: (target, key, receiver) => {
         const findMap = maps.find(x => x.has(key))
-        return findMap
-          ? (params = {}) => {
+        return !findMap
+          ? Reflect.get(target, key, receiver)
+          : (params = {}) => {
             const handle = findMap.get(key)
             this.valid(
               handle.bind
@@ -35,7 +36,6 @@ class Valy {
             )
             return receiver
           }
-          : Reflect.get(target, key, receiver)
       }
     })
   }
@@ -84,7 +84,7 @@ class Valy {
           toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }))
         } else {
           const toFindHandle = validItems.split('?')
-          const handle = insideValidator[toFindHandle[0]]
+          const handle = maps.find(x => x.has(toFindHandle[0])).get(toFindHandle[0])
           if (!handle) {
             toValidResult = false
             this.errorMsg = validItems
