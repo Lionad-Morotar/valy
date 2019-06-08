@@ -27,11 +27,18 @@ const line = () => console.log('\n')
 
 // line()
 
+Valy.use({
+  max56 () {
+    console.log('max56')
+    return 'max?max=56'
+  }
+})
 log(
   new Valy(55.01)
     .number()
     .min({ min: 55 })
     .max({ max: 60 })
+    .max56()
     .valid(/^55.01$/)
     .valid([_ => [ _ => [ _ => _ < 56 ] ]])
     .getRes()

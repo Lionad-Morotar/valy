@@ -43,7 +43,7 @@ export default {
   },
   // 数字
   number: 'interger||float',
-  // 数字比较
+  // 数字比较q
   max (options) {
     options = Object.assign({ max: Number.MAX_SAFE_INTEGER }, options)
     return !Number.isNaN(+options.value) ? (+options.value < +options.max) : `应不大于${options.max}`

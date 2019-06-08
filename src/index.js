@@ -3,8 +3,6 @@
 import utils from './utils'
 import insideValidator from './insideValidator.js'
 
-const insideValidatorMap = new Map(Object.entries(insideValidator))
-
 const DEFAULT_VALID_OPTIONS = { stragedy: 'and' }
 
 /** Valy
@@ -14,7 +12,7 @@ const DEFAULT_VALID_OPTIONS = { stragedy: 'and' }
  * @param {Any} rawValue 待校验的值
  * @param {Array, Regex, Function} validItems 待校验的选项
  */
-export default class Valy {
+class Valy {
   constructor (rawValue, validItems = []) {
     Object.assign(this, {
       pass: false,
@@ -26,9 +24,10 @@ export default class Valy {
     })
     return new Proxy(this, {
       get: (target, key, receiver) => {
-        return insideValidatorMap.has(key)
+        const findMap = maps.find(x => x.has(key))
+        return findMap
           ? (params = {}) => {
-            const handle = insideValidatorMap.get(key)
+            const handle = findMap.get(key)
             this.valid(
               handle.bind
                 ? handle.bind(this, Object.assign({ value: this.rawValue }, params))
@@ -140,3 +139,9 @@ export default class Valy {
     return this.errorMsg || this.result
   }
 }
+
+const maps = []
+Valy.use = models => maps.unshift(new Map(Object.entries(models)))
+Valy.use(insideValidator)
+
+export default Valy

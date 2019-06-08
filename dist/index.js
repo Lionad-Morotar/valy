@@ -104,7 +104,7 @@ var insideValidator = {
   },
   // 数字
   number: 'interger||float',
-  // 数字比较
+  // 数字比较q
   max: function max (options) {
     options = Object.assign({ max: Number.MAX_SAFE_INTEGER }, options);
     return !Number.isNaN(+options.value) ? (+options.value < +options.max) : ("应不大于" + (options.max))
@@ -121,8 +121,6 @@ var insideValidator = {
 }
 
 /* eslint-disable no-sequences */
-
-var insideValidatorMap = new Map(Object.entries(insideValidator));
 
 var DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
 
@@ -147,11 +145,12 @@ var Valy = function Valy (rawValue, validItems) {
   });
   return new Proxy(this, {
     get: function (target, key, receiver) {
-      return insideValidatorMap.has(key)
+      var findMap = maps.find(function (x) { return x.has(key); });
+      return findMap
         ? function (params) {
           if ( params === void 0 ) params = {};
 
-          var handle = insideValidatorMap.get(key);
+          var handle = findMap.get(key);
           this$1.valid(
             handle.bind
               ? handle.bind(this$1, Object.assign({ value: this$1.rawValue }, params))
@@ -271,6 +270,10 @@ Valy.prototype.not = function not (assertResult) {
 Valy.prototype.getRes = function getRes () {
   return this.errorMsg || this.result
 };
+
+var maps = [];
+Valy.use = function (models) { return maps.unshift(new Map(Object.entries(models))); };
+Valy.use(insideValidator);
 
 module.exports = Valy;
 //# sourceMappingURL=index.js.map
