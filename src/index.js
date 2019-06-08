@@ -24,6 +24,7 @@ class Valy {
     })
     return new Proxy(this, {
       get: (target, key, receiver) => {
+        // TODO prototype properties
         const findMap = maps.find(x => x.has(key))
         return !findMap
           ? Reflect.get(target, key, receiver)
@@ -40,6 +41,7 @@ class Valy {
     })
   }
 
+  // TODO async validate
   toValid (validItems = this.rawValidItems, options) {
     /** default value */
 
@@ -79,6 +81,8 @@ class Valy {
         break
 
       case 'string':
+        // TODO replace params syntax `?name=val` with `(val)`
+        // TODO eval((1&&1||2)||0)
         const validArr = validItems.split('||')
         if (validArr.length > 1) {
           toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }))
@@ -115,6 +119,8 @@ class Valy {
     }
     return this
   }
+
+  // TODO format
 
   // 对值进行格式化
   format (fn = _ => _) {

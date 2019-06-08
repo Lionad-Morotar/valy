@@ -145,6 +145,7 @@ var Valy = function Valy (rawValue, validItems) {
   });
   return new Proxy(this, {
     get: function (target, key, receiver) {
+      // TODO prototype properties
       var findMap = maps.find(function (x) { return x.has(key); });
       return !findMap
         ? Reflect.get(target, key, receiver)
@@ -163,6 +164,7 @@ var Valy = function Valy (rawValue, validItems) {
   })
 };
 
+// TODO async validate
 Valy.prototype.toValid = function toValid (validItems, options) {
     var this$1 = this;
     if ( validItems === void 0 ) validItems = this.rawValidItems;
@@ -205,6 +207,8 @@ Valy.prototype.toValid = function toValid (validItems, options) {
       break
 
     case 'string':
+      // TODO replace params syntax `?name=val` with `(val)`
+      // TODO eval((1&&1||2)||0)
       var validArr = validItems.split('||');
       if (validArr.length > 1) {
         toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }));
@@ -241,6 +245,8 @@ Valy.prototype.valid = function valid (validItems) {
   }
   return this
 };
+
+// TODO format
 
 // 对值进行格式化
 Valy.prototype.format = function format (fn) {
