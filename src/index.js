@@ -44,7 +44,7 @@ export default class Valy {
       'regexp': () => validItems.test(this.rawValue),
       'boolean': () => validItems,
       'undefined': () => false,
-      'error': () => throw new Error(`unsupported type of validItem : ${typeof validItems} - ${validItems}`)
+      'error': () => { throw new Error(`unsupported type of validItem : ${typeof validItems} - ${validItems}`) }
     }
 
     /** vars */

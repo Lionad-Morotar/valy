@@ -130,21 +130,20 @@ var DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
  * @param {Array, Regex, Function} validItems 待校验的选项
  */
 var Valy = function Valy (rawValue, validItems) {
-    if ( validItems === void 0 ) validItems = [];
+  if ( validItems === void 0 ) validItems = [];
 
-    Object.assign(this, {
-      pass: false,
-      result: null,
-      errorMsg: null,
-      rawValue: rawValue,
-      validItems: validItems
-    });
+  Object.assign(this, {
+    pass: false,
+    result: null,
+    errorMsg: null,
+    rawValue: rawValue,
+    validItems: validItems
+  });
 };
 
 Valy.prototype.toValid = function toValid (validItems, options) {
     var this$1 = this;
     if ( validItems === void 0 ) validItems = this.rawValidItems;
-
 
   /** default value */
 
@@ -155,34 +154,31 @@ Valy.prototype.toValid = function toValid (validItems, options) {
   var methods = {
     'function': function () {
       var fnResult = validItems(this$1.rawValue);
-        
       return ['function', 'object'].includes(typeof fnResult)
         ? this$1.toValid(fnResult)
         : fnResult
     },
-    'regexp': function () { return validItems.test(this$1.rawValue); }
+    'array': function () {
+      var results = validItems.map(function (x) { return this$1.toValid(x); });
+      return options.stragedy === 'and'
+        ? results.every(function (x) { return x === true; })
+        : results.some(function (x) { return x === true; })
+    },
+    'regexp': function () { return validItems.test(this$1.rawValue); },
+    'boolean': function () { return validItems; },
+    'undefined': function () { return false; },
+    'error': function () { throw new Error(("unsupported type of validItem : " + (typeof validItems) + " - " + validItems)) }
   };
 
   /** vars */
 
   var toValidResult = null;
-  
   switch (typeof validItems) {
     case 'object':
       if (Array.isArray(validItems)) {
-        var toValidResultArr = validItems.map(function (x) { return this$1.toValid(x); });
-        switch (options.stragedy) {
-          case 'and':
-            toValidResult = toValidResultArr.every(function (x) { return x === true; });
-            break
-          case 'or':
-            toValidResult = toValidResultArr.some(function (x) { return x === true; });
-            break
-        }
+        toValidResult = methods['array'].bind(this)();
       } else if (validItems instanceof RegExp) {
         toValidResult = methods['regexp'].bind(this)();
-      } else {
-        throw new Error(("unsupported object type validItem : " + validItems))
       }
       break
 
@@ -206,14 +202,6 @@ Valy.prototype.toValid = function toValid (validItems, options) {
           toValidResult = this.toValid(handle);
         }
       }
-      break
-
-    case 'boolean':
-      toValidResult = validItems;
-      break
-
-    case 'undefined':
-      toValidResult = false;
       break
 
     default:
