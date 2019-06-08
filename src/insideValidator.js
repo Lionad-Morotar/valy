@@ -46,15 +46,15 @@ export default {
   // 数字比较
   max (options) {
     options = Object.assign({ max: Number.MAX_SAFE_INTEGER }, options)
-    return !Number.isNaN(+options.value) && (+options.value < +options.max) || `应不大于${options.max}`
+    return !Number.isNaN(+options.value) ? (+options.value < +options.max) : `应不大于${options.max}`
   },
   min (options) {
     options = Object.assign({ min: Number.MIN_SAFE_INTEGER }, options)
-    return !Number.isNaN(+options.value) && (+options.value > +options.min) || `应不小于${options.min}`
+    return !Number.isNaN(+options.value) ? (+options.value > +options.min) : `应不小于${options.min}`
   },
 
   /** general */
 
   // 必需值
-  required: options => (!['null', 'undefined'].includes(options.value) && /.+/.test(options.value) || '值缺失'),
+  required: options => (!['null', 'undefined'].includes(options.value) ? /.+/.test(options.value) : '值缺失'),
 }

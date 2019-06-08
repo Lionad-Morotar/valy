@@ -1,5 +1,9 @@
+/* eslint-disable no-sequences */
+
 import utils from './utils'
-import defaultValidator from './defaultValidator.js'
+import insideValidator from './insideValidator.js'
+
+const insideValidatorMap = new Map(Object.entries(insideValidator))
 
 const DEFAULT_VALID_OPTIONS = { stragedy: 'and' }
 
@@ -18,6 +22,13 @@ export default class Valy {
       errorMsg: null,
       rawValue,
       validItems
+    })
+    return new Proxy(this, {
+      get: (target, key, receiver) => {
+        return insideValidatorMap.has(key)
+          ? () => (this.valid(insideValidatorMap.get(key)), this)
+          : Reflect.get(target, key, receiver)
+      }
     })
   }
 
@@ -65,7 +76,7 @@ export default class Valy {
           toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }))
         } else {
           const toFindHandle = validItems.split('?')
-          const handle = defaultValidator[toFindHandle[0]]
+          const handle = insideValidator[toFindHandle[0]]
           if (!handle) {
             toValidResult = false
             this.errorMsg = validItems

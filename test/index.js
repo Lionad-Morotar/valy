@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // import mdDemo from '../res/md.demo'
 const Valy = require('../dist/index')
 
@@ -28,5 +30,4 @@ const line = () => console.log('\n')
 // log(new Valy(55.01).valid(_ => [ _ => [ _ => _ < 56 ] ]).getRes())
 
 
-log(new Valy(55.01).valid(/^55$/).getRes())
-log(new Valy(55.01).valid(/^55.01$/).getRes())
+log(new Valy(55.01).valid(/^55.01$/).number().getRes())

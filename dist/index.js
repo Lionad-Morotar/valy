@@ -61,7 +61,7 @@ var utils = {
 
 }
 
-var defaultValidator = {
+var insideValidator = {
 
   /** social media */
 
@@ -107,18 +107,22 @@ var defaultValidator = {
   // 数字比较
   max: function max (options) {
     options = Object.assign({ max: Number.MAX_SAFE_INTEGER }, options);
-    return !Number.isNaN(+options.value) && (+options.value < +options.max) || ("应不大于" + (options.max))
+    return !Number.isNaN(+options.value) ? (+options.value < +options.max) : ("应不大于" + (options.max))
   },
   min: function min (options) {
     options = Object.assign({ min: Number.MIN_SAFE_INTEGER }, options);
-    return !Number.isNaN(+options.value) && (+options.value > +options.min) || ("应不小于" + (options.min))
+    return !Number.isNaN(+options.value) ? (+options.value > +options.min) : ("应不小于" + (options.min))
   },
 
   /** general */
 
   // 必需值
-  required: function (options) { return (!['null', 'undefined'].includes(options.value) && /.+/.test(options.value) || '值缺失'); },
+  required: function (options) { return (!['null', 'undefined'].includes(options.value) ? /.+/.test(options.value) : '值缺失'); },
 }
+
+/* eslint-disable no-sequences */
+
+var insideValidatorMap = new Map(Object.entries(insideValidator));
 
 var DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
 
@@ -130,6 +134,7 @@ var DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
  * @param {Array, Regex, Function} validItems 待校验的选项
  */
 var Valy = function Valy (rawValue, validItems) {
+  var this$1 = this;
   if ( validItems === void 0 ) validItems = [];
 
   Object.assign(this, {
@@ -139,6 +144,13 @@ var Valy = function Valy (rawValue, validItems) {
     rawValue: rawValue,
     validItems: validItems
   });
+  return new Proxy(this, {
+    get: function (target, key, receiver) {
+      return insideValidatorMap.has(key)
+        ? function () { return (this$1.valid(insideValidatorMap.get(key)), this$1); }
+        : Reflect.get(target, key, receiver)
+    }
+  })
 };
 
 Valy.prototype.toValid = function toValid (validItems, options) {
@@ -188,7 +200,7 @@ Valy.prototype.toValid = function toValid (validItems, options) {
         toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }));
       } else {
         var toFindHandle = validItems.split('?');
-        var handle = defaultValidator[toFindHandle[0]];
+        var handle = insideValidator[toFindHandle[0]];
         if (!handle) {
           toValidResult = false;
           this.errorMsg = validItems;
