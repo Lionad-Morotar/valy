@@ -27,15 +27,12 @@ const line = () => console.log('\n')
 
 // line()
 
-// log(new Valy(55.01).valid(_ => [ _ => [ _ => _ < 56 ] ]).getRes())
-
-
-// log(new Valy(55.01).max({ max: 60 }).number().getRes())
 log(
   new Valy(55.01)
     .number()
     .min({ min: 55 })
     .max({ max: 60 })
     .valid(/^55.01$/)
+    .valid([_ => [ _ => [ _ => _ < 56 ] ]])
     .getRes()
 )
