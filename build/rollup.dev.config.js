@@ -11,7 +11,6 @@ export default [{
     // getPlugin('progress', { clear: false }),
     // getPlugin('eslint'),
     getPlugin('resolve'),
-    getPlugin('commonjs'),
     getPlugin('babel'),
     // getPlugin('filesize')
   ].filter(p => p)

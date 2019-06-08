@@ -20,13 +20,22 @@ export default class Valy {
       pass: false,
       result: null,
       errorMsg: null,
+      // TODO value, 每一步的结果 (比如在链式调用中穿插 format 函数)
       rawValue,
       validItems
     })
     return new Proxy(this, {
       get: (target, key, receiver) => {
         return insideValidatorMap.has(key)
-          ? () => (this.valid(insideValidatorMap.get(key)), this)
+          ? (params = {}) => {
+            const handle = insideValidatorMap.get(key)
+            this.valid(
+              handle.bind
+                ? handle.bind(this, Object.assign({ value: this.rawValue }, params))
+                : handle
+            )
+            return receiver
+          }
           : Reflect.get(target, key, receiver)
       }
     })

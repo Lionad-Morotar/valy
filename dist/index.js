@@ -141,13 +141,24 @@ var Valy = function Valy (rawValue, validItems) {
     pass: false,
     result: null,
     errorMsg: null,
+    // TODO value, 每一步的结果 (比如在链式调用中穿插 format 函数)
     rawValue: rawValue,
     validItems: validItems
   });
   return new Proxy(this, {
     get: function (target, key, receiver) {
       return insideValidatorMap.has(key)
-        ? function () { return (this$1.valid(insideValidatorMap.get(key)), this$1); }
+        ? function (params) {
+          if ( params === void 0 ) params = {};
+
+          var handle = insideValidatorMap.get(key);
+          this$1.valid(
+            handle.bind
+              ? handle.bind(this$1, Object.assign({ value: this$1.rawValue }, params))
+              : handle
+          );
+          return receiver
+        }
         : Reflect.get(target, key, receiver)
     }
   })
