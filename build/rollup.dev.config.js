@@ -8,12 +8,11 @@ export default [{
     sourcemap: true
   },
   plugins: [
-    getPlugin('progress', { clear: false }),
-    getPlugin('eslint'),
-    getPlugin('json'),
+    // getPlugin('progress', { clear: false }),
+    // getPlugin('eslint'),
     getPlugin('resolve'),
     getPlugin('commonjs'),
     getPlugin('babel'),
-    getPlugin('filesize')
+    // getPlugin('filesize')
   ].filter(p => p)
 }]
