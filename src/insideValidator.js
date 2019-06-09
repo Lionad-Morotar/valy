@@ -23,11 +23,25 @@ export default {
     return ['notNaN', +this.value > min]
   },
 
-  /** TODO array */
+  /** array */
+  
+  some (_) { 
+    return this.value.some(x => this.toValid(_, { value: x })) 
+  },
+  every (_) { 
+    return this.value.every(x => this.toValid(_, { value: x })) 
+  },
 
   /** general */
 
   required: /.+/,
-  is (_) { return this.value === _ },
-  not (_) { return this.value !== _ }
+  is (_) { 
+    return this.value === _ 
+  },
+  not (_) { 
+    return this.value !== _ 
+  },
+  has (_) {
+    return this.value.includes(_)
+  }
 }

@@ -27,6 +27,15 @@ const line = () => console.log('\n')
 
 // line()
 
+/** async */
+
+// new Valy('5')
+//     .valid(/5/)
+//     .flush(),
+// new Valy('5')
+//   .validAsync(task().then(() => 'is?5'))
+//   .then(res => console.log(res.flush()))
+
 Valy.use({
   // TODO test this.value
   max56: 'max?55',
@@ -55,10 +64,14 @@ log(
   //   .format(_ => 1)
   //   .valid(setTimeout(() => 'is?1', 1))
   //   .flush(),
-  new Valy('5')
-    .valid(/5/)
+  new Valy([1,2,3])
+    .every(_ => _ >= 1)
+    .some(_ => _ === 3)
+    .has(1)
+    .format(_ => '3')
+    .has(3)
+    .format()
+    .every(_ => _ >= 1)
+    .some(_ => _ === 3)
     .flush(),
-  new Valy('5')
-    .validAsync(task().then(() => 'is?5'))
-    .then(res => console.log(res.flush()))
 )

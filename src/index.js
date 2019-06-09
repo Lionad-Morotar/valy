@@ -8,6 +8,9 @@ const DEFAULT_VALID_OPTIONS = { stragedy: 'and' }
 class Valy {
   constructor (value = '') {
     Object.assign(this, {
+      store: new WeakMap([
+        ['value', value]
+      ]),
       pass: false,
       result: null,
       message: '',
@@ -32,14 +35,15 @@ class Valy {
     })
   }
 
-  toValid (validators = [], options) {
+  toValid (validators = [], options = {}) {
     options = Object.assign(DEFAULT_VALID_OPTIONS, options)
+    const value = options.value || this.value
 
     /** const */
 
     const methods = {
       'function': () => {
-        const fnResult = validators(this.value)
+        const fnResult = validators(value)
         return ['function', 'object'].includes(typeof fnResult)
           ? this.toValid(fnResult)
           : fnResult
@@ -50,7 +54,7 @@ class Valy {
           ? results.every(x => x === true)
           : results.some(x => x === true)
       },
-      'regexp': () => validators.test(this.value),
+      'regexp': () => validators.test(value),
       'boolean': () => validators,
       'undefined': () => false,
       'error': () => { throw new Error(`unsupported type of validItem : ${typeof validators} - ${validators}`) }
@@ -97,7 +101,7 @@ class Valy {
 
     return toValidResult
   }
-  format (fn = _ => _) {
+  format (fn = _ => this.store.get('value')) {
     this.value = fn(this.value)
     return this
   }
