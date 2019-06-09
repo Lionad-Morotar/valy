@@ -55,12 +55,10 @@ log(
   //   .format(_ => 1)
   //   .valid(setTimeout(() => 'is?1', 1))
   //   .flush(),
-  // new Valy('5')
-  //   .valid(/5/)
-  //   .flush(),
+  new Valy('5')
+    .valid(/5/)
+    .flush(),
   new Valy('5')
     .validAsync(task().then(() => 'is?5'))
-    .then(res => {
-      console.log(res.flush())
-    })
+    .then(res => console.log(res.flush()))
 )

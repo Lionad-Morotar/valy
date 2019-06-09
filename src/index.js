@@ -19,7 +19,7 @@ class Valy {
         const findMap = maps.find(x => x.has(key))
         return !findMap
           ? Reflect.get(target, key, receiver)
-          : (params = {}) => {
+          : params => {
             const handle = findMap.get(key)
             this.valid(
               handle.bind

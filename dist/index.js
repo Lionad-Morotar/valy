@@ -32,7 +32,7 @@ var insideValidator = {
   required: /.+/,
   is (_) { return this.value === _ },
   not (_) { return this.value !== _ }
-};
+}
 
 const DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
 
@@ -53,7 +53,7 @@ class Valy {
         const findMap = maps.find(x => x.has(key));
         return !findMap
           ? Reflect.get(target, key, receiver)
-          : (params = {}) => {
+          : params => {
             const handle = findMap.get(key);
             this.valid(
               handle.bind
