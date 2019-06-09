@@ -15,14 +15,14 @@ var insideValidator = {
   interger: /^-?\d+$/,
   float: /^-?\d*.\d*$/,
   number: 'interger||float',
-  notNaN: function notNaN () {
+  notNaN () {
     return !Number.isNaN(+this.value)
   },
-  max: function max (max$1) {
-    return ['notNaN', +this.value < max$1]
+  max (max) {
+    return ['notNaN', +this.value < max]
   },
-  min: function min (min$1) {
-    return ['notNaN', +this.value > min$1]
+  min (min) {
+    return ['notNaN', +this.value > min]
   },
 
   /** TODO array */
@@ -30,143 +30,138 @@ var insideValidator = {
   /** general */
 
   required: /.+/,
-  is: function is (_) { return this.value === _ },
-  not: function not (_) { return this.value !== _ }
-}
+  is (_) { return this.value === _ },
+  not (_) { return this.value !== _ }
+};
 
-var DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
+const DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
 
 /** Valy
  * @param {Any} value 待校验的值
  */
-var Valy = function Valy (value) {
-  var this$1 = this;
-  if ( value === void 0 ) value = '';
-
-  Object.assign(this, {
-    pass: false,
-    result: null,
-    message: null,
-    value: value
-  });
-  return new Proxy(this, {
-    get: function (target, key, receiver) {
-      // TODO prototype properties
-      var findMap = maps.find(function (x) { return x.has(key); });
-      return !findMap
-        ? Reflect.get(target, key, receiver)
-        : function (params) {
-          if ( params === void 0 ) params = {};
-
-          var handle = findMap.get(key);
-          this$1.valid(
-            handle.bind
-              ? handle.bind(this$1, params)
-              : handle
-          );
-          return receiver
-        }
-    }
-  })
-};
-
-// TODO async validate
-Valy.prototype.toValid = function toValid (validItems, options) {
-    var this$1 = this;
-    if ( validItems === void 0 ) validItems = [];
-
-
-  options = Object.assign(DEFAULT_VALID_OPTIONS, options);
-
-  /** const */
-
-  var methods = {
-    'function': function () {
-      var fnResult = validItems(this$1.value);
-      return ['function', 'object'].includes(typeof fnResult)
-        ? this$1.toValid(fnResult)
-        : fnResult
-    },
-    'array': function () {
-      var results = validItems.map(function (x) { return this$1.toValid(x); });
-      return options.stragedy === 'and'
-        ? results.every(function (x) { return x === true; })
-        : results.some(function (x) { return x === true; })
-    },
-    'regexp': function () { return validItems.test(this$1.value); },
-    'boolean': function () { return validItems; },
-    'undefined': function () { return false; },
-    'error': function () { throw new Error(("unsupported type of validItem : " + (typeof validItems) + " - " + validItems)) }
-  };
-
-  /** vars */
-
-  var toValidResult = null;
-  switch (typeof validItems) {
-    case 'object':
-      if (Array.isArray(validItems)) {
-        toValidResult = methods['array'].bind(this)();
-      } else if (validItems instanceof RegExp) {
-        toValidResult = methods['regexp'].bind(this)();
+class Valy {
+  constructor (value = '') {
+    Object.assign(this, {
+      pass: false,
+      result: null,
+      message: '',
+      value
+    });
+    return new Proxy(this, {
+      get: (target, key, receiver) => {
+        // TODO prototype properties
+        const findMap = maps.find(x => x.has(key));
+        return !findMap
+          ? Reflect.get(target, key, receiver)
+          : (params = {}) => {
+            const handle = findMap.get(key);
+            this.valid(
+              handle.bind
+                ? handle.bind(this, params)
+                : handle
+            );
+            return receiver
+          }
       }
-      break
+    })
+  }
 
-    case 'string':
-      // TODO eval((1&&1||2)||0)
-      var validArr = validItems.split('||');
-      if (validArr.length > 1) {
-        toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }));
-      } else {
-        var toFindHandle = validItems.split('?');
-        var ref = [toFindHandle[0], (toFindHandle[1] || '').split(',')];
-          var fnName = ref[0];
-          var params = ref[1];
-        var handle = maps.find(function (x) { return x.has(fnName); }).get(fnName);
-        if (!handle) {
-          toValidResult = false;
-          this.message = validItems;
-          break
+  toValid (validators = [], options) {
+    options = Object.assign(DEFAULT_VALID_OPTIONS, options);
+
+    /** const */
+
+    const methods = {
+      'function': () => {
+        const fnResult = validators(this.value);
+        return ['function', 'object'].includes(typeof fnResult)
+          ? this.toValid(fnResult)
+          : fnResult
+      },
+      'array': () => {
+        const results = validators.map(x => this.toValid(x));
+        return options.stragedy === 'and'
+          ? results.every(x => x === true)
+          : results.some(x => x === true)
+      },
+      'regexp': () => validators.test(this.value),
+      'boolean': () => validators,
+      'undefined': () => false,
+      'error': () => { throw new Error(`unsupported type of validItem : ${typeof validators} - ${validators}`) }
+    };
+
+    /** vars */
+
+    let toValidResult = null;
+    switch (typeof validators) {
+      case 'object':
+        if (Array.isArray(validators)) {
+          toValidResult = methods['array'].bind(this)();
+        } else if (validators instanceof RegExp) {
+          toValidResult = methods['regexp'].bind(this)();
         }
-        if (typeof handle === 'function') {
-          var handleFnRes = handle.bind(this).apply(void 0, params);
-          toValidResult = this.toValid(handleFnRes);
+        break
+
+      case 'string':
+        // TODO eval((1&&1||2)||0)
+        const validArr = validators.split('||');
+        if (validArr.length > 1) {
+          toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }));
         } else {
-          toValidResult = this.toValid(handle);
+          const toFindHandle = validators.split('?');
+          const [fnName, params] = [toFindHandle[0], (toFindHandle[1] || '').split(',')];
+          const handle = maps.find(x => x.has(fnName)).get(fnName);
+          if (!handle) {
+            toValidResult = false;
+            this.message = validators;
+            break
+          }
+          if (typeof handle === 'function') {
+            const handleFnRes = handle.bind(this)(...params);
+            toValidResult = this.toValid(handleFnRes);
+          } else {
+            toValidResult = this.toValid(handle);
+          }
         }
-      }
-      break
+        break
 
-    default:
-      toValidResult = methods[typeof validItems].bind(this)();
+      default:
+        toValidResult = methods[typeof validators].bind(this)();
+    }
+
+    return toValidResult
   }
-
-  return toValidResult
-};
-Valy.prototype.format = function format (fn) {
-    if ( fn === void 0 ) fn = function (_) { return _; };
-
-  this.value = fn(this.value);
-  return this
-};
-Valy.prototype.valid = function valid (validItems) {
-  if (this.pass) { return this }
-  if (!(this.result = this.toValid(validItems))) {
-    this.pass = true;
+  format (fn = _ => _) {
+    this.value = fn(this.value);
+    return this
   }
-  return this
-};
-Valy.prototype.msg = function msg (info) {
-  this.result = this.result || info;
-  return this
-};
-Valy.prototype.flush = function flush (key) {
-  return key
-    ? this[key]
-    : this.message || this.result
-};
+  valid (validators) {
+    if (this.pass) return this
+    if (!(this.result = this.toValid(validators))) {
+      this.pass = true;
+    }
+    return this
+  }
+  async validAsync (validators) {
+    if (this.pass) return this
+    if (!(this.result = this.toValid(await validators))) {
+      this.pass = true;
+    }
+    return this
+  }
+  msg (info) {
+    this.result = this.result || info;
+    return this
+  }
+  flush (key) {
+    return key
+      ? this[key]
+      : this.message || this.result
+  }
+}
 
-var maps = [];
-Valy.use = function (models) { return maps.unshift(new Map(Object.entries(models))); };
+const maps = [];
+Valy.use = models => maps.unshift(new Map(Object.entries(models)));
 Valy.use(insideValidator);
 
 module.exports = Valy;

@@ -1,27 +1,9 @@
 {
   "presets": [
-    [
-      "env",
-      {
-        "modules": false,
-        "loose": true,
-        "useBuiltIns": false,
-        "targets": {
-          "browsers": [
-            "> 1%",
-            "last 2 versions",
-            "not ie <= 8"
-          ]
-        }
-      }
-    ]
+    "@babel/preset-env"
   ],
   "plugins": [
-    "external-helpers",
-    "@babel/plugin-transform-async-to-generator"
-  ],
-  "env": {
-    "development": {},
-    "production": {}
-  }
+    "syntax-async-functions",
+    "transform-regenerator"
+  ]
 }

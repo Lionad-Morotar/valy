@@ -10,8 +10,8 @@ export default [{
   plugins: [
     // getPlugin('progress', { clear: false }),
     // getPlugin('eslint'),
-    getPlugin('resolve'),
-    getPlugin('babel'),
+    // getPlugin('resolve'),
+    // getPlugin('babel'),
     // getPlugin('filesize')
-  ].filter(p => p)
+  ]
 }]

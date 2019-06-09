@@ -10,7 +10,7 @@ class Valy {
     Object.assign(this, {
       pass: false,
       result: null,
-      message: null,
+      message: '',
       value
     })
     return new Proxy(this, {
@@ -32,56 +32,54 @@ class Valy {
     })
   }
 
-  // TODO async validate
-  toValid (validItems = [], options) {
-
+  toValid (validators = [], options) {
     options = Object.assign(DEFAULT_VALID_OPTIONS, options)
 
     /** const */
 
     const methods = {
       'function': () => {
-        const fnResult = validItems(this.value)
+        const fnResult = validators(this.value)
         return ['function', 'object'].includes(typeof fnResult)
           ? this.toValid(fnResult)
           : fnResult
       },
       'array': () => {
-        const results = validItems.map(x => this.toValid(x))
+        const results = validators.map(x => this.toValid(x))
         return options.stragedy === 'and'
           ? results.every(x => x === true)
           : results.some(x => x === true)
       },
-      'regexp': () => validItems.test(this.value),
-      'boolean': () => validItems,
+      'regexp': () => validators.test(this.value),
+      'boolean': () => validators,
       'undefined': () => false,
-      'error': () => { throw new Error(`unsupported type of validItem : ${typeof validItems} - ${validItems}`) }
+      'error': () => { throw new Error(`unsupported type of validItem : ${typeof validators} - ${validators}`) }
     }
 
     /** vars */
 
     let toValidResult = null
-    switch (typeof validItems) {
+    switch (typeof validators) {
       case 'object':
-        if (Array.isArray(validItems)) {
+        if (Array.isArray(validators)) {
           toValidResult = methods['array'].bind(this)()
-        } else if (validItems instanceof RegExp) {
+        } else if (validators instanceof RegExp) {
           toValidResult = methods['regexp'].bind(this)()
         }
         break
 
       case 'string':
         // TODO eval((1&&1||2)||0)
-        const validArr = validItems.split('||')
+        const validArr = validators.split('||')
         if (validArr.length > 1) {
           toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }))
         } else {
-          const toFindHandle = validItems.split('?')
+          const toFindHandle = validators.split('?')
           const [fnName, params] = [toFindHandle[0], (toFindHandle[1] || '').split(',')]
           const handle = maps.find(x => x.has(fnName)).get(fnName)
           if (!handle) {
             toValidResult = false
-            this.message = validItems
+            this.message = validators
             break
           }
           if (typeof handle === 'function') {
@@ -94,7 +92,7 @@ class Valy {
         break
 
       default:
-        toValidResult = methods[typeof validItems].bind(this)()
+        toValidResult = methods[typeof validators].bind(this)()
     }
 
     return toValidResult
@@ -103,9 +101,16 @@ class Valy {
     this.value = fn(this.value)
     return this
   }
-  valid (validItems) {
+  valid (validators) {
     if (this.pass) return this
-    if (!(this.result = this.toValid(validItems))) {
+    if (!(this.result = this.toValid(validators))) {
+      this.pass = true
+    }
+    return this
+  }
+  async validAsync (validators) {
+    if (this.pass) return this
+    if (!(this.result = this.toValid(await validators))) {
       this.pass = true
     }
     return this

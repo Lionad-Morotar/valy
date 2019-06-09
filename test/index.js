@@ -28,21 +28,39 @@ const line = () => console.log('\n')
 // line()
 
 Valy.use({
+  // TODO test this.value
   max56: 'max?55',
   min56: 'min?56',
   maxminRequired: 'max56||min56||required'
 })
+
+const task = () => new Promise(resolve => {
+  setTimeout(() => {
+    resolve(1)
+  }, 1000)
+})
+
 log(
-  new Valy(55.01)
-    .not(49)
-    .required()
-    .number()
-    .min(55)
-    .max(60)
-    .maxminRequired()
-    .valid(/^55.01$/)
-    .valid([_ => [ _ => [ _ => _ < 56 ] ]])
-    .format(_ => 55)
-    .valid(/^55$/)
-    .flush()
+  // new Valy(55.01)
+  //   .not(49)
+  //   .required()
+  //   .number()
+  //   .min(55)
+  //   .max(60)
+  //   .maxminRequired()
+  //   .valid(/^55.01$/)
+  //   .valid([_ => [ _ => [ _ => _ < 56 ] ]])
+  //   .format(_ => 55)
+  //   .valid(/^55$/)
+  //   .format(_ => 1)
+  //   .valid(setTimeout(() => 'is?1', 1))
+  //   .flush(),
+  // new Valy('5')
+  //   .valid(/5/)
+  //   .flush(),
+  new Valy('5')
+    .validAsync(task().then(() => 'is?5'))
+    .then(res => {
+      console.log(res.flush())
+    })
 )
