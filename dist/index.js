@@ -10,7 +10,7 @@ var insideValidator = {
   mobile: /^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\d{8}$/,
   idcard: /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
 
-  // /** number */
+  /** number */
 
   interger: /^-?\d+$/,
   float: /^-?\d*.\d*$/,
@@ -24,6 +24,8 @@ var insideValidator = {
   min: function min (min$1) {
     return ['notNaN', +this.value > min$1]
   },
+
+  /** TODO array */
 
   /** general */
 
@@ -140,6 +142,12 @@ Valy.prototype.toValid = function toValid (validItems, options) {
 
   return toValidResult
 };
+Valy.prototype.format = function format (fn) {
+    if ( fn === void 0 ) fn = function (_) { return _; };
+
+  this.value = fn(this.value);
+  return this
+};
 Valy.prototype.valid = function valid (validItems) {
   if (this.pass) { return this }
   if (!(this.result = this.toValid(validItems))) {
@@ -147,10 +155,8 @@ Valy.prototype.valid = function valid (validItems) {
   }
   return this
 };
-Valy.prototype.format = function format (fn) {
-    if ( fn === void 0 ) fn = function (_) { return _; };
-
-  this.value = fn(this.value);
+Valy.prototype.msg = function msg (info) {
+  this.result = this.result || info;
   return this
 };
 Valy.prototype.flush = function flush (key) {

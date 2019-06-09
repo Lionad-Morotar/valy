@@ -99,6 +99,10 @@ class Valy {
 
     return toValidResult
   }
+  format (fn = _ => _) {
+    this.value = fn(this.value)
+    return this
+  }
   valid (validItems) {
     if (this.pass) return this
     if (!(this.result = this.toValid(validItems))) {
@@ -106,8 +110,8 @@ class Valy {
     }
     return this
   }
-  format (fn = _ => _) {
-    this.value = fn(this.value)
+  msg (info) {
+    this.result = this.result || info
     return this
   }
   flush (key) {
