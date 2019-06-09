@@ -48,5 +48,7 @@ log(
     .maxminRequired()
     .valid(/^55.01$/)
     .valid([_ => [ _ => [ _ => _ < 56 ] ]])
-    .getRes()
+    .format(_ => 55)
+    .valid(/^55$/)
+    .flush()
 )

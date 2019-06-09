@@ -116,8 +116,8 @@ var insideValidator = {
 
   /** general */
 
-  // 必需值
   required: function (options) { return (!['null', 'undefined'].includes(options.value) ? /.+/.test(options.value) : '值缺失'); },
+  // not: options => options.value !==
 }
 
 /* eslint-disable no-sequences */
@@ -139,8 +139,8 @@ var Valy = function Valy (rawValue, validItems) {
     pass: false,
     result: null,
     errorMsg: null,
-    // TODO value, 每一步的结果 (比如在链式调用中穿插 format 函数)
     rawValue: rawValue,
+    value: rawValue,
     validItems: validItems
   });
   return new Proxy(this, {
@@ -155,7 +155,7 @@ var Valy = function Valy (rawValue, validItems) {
           var handle = findMap.get(key);
           this$1.valid(
             handle.bind
-              ? handle.bind(this$1, Object.assign({ value: this$1.rawValue }, params))
+              ? handle.bind(this$1, Object.assign({ value: this$1.value }, params))
               : handle
           );
           return receiver
@@ -177,7 +177,7 @@ Valy.prototype.toValid = function toValid (validItems, options) {
 
   var methods = {
     'function': function () {
-      var fnResult = validItems(this$1.rawValue);
+      var fnResult = validItems(this$1.value);
       return ['function', 'object'].includes(typeof fnResult)
         ? this$1.toValid(fnResult)
         : fnResult
@@ -188,7 +188,7 @@ Valy.prototype.toValid = function toValid (validItems, options) {
         ? results.every(function (x) { return x === true; })
         : results.some(function (x) { return x === true; })
     },
-    'regexp': function () { return validItems.test(this$1.rawValue); },
+    'regexp': function () { return validItems.test(this$1.value); },
     'boolean': function () { return validItems; },
     'undefined': function () { return false; },
     'error': function () { throw new Error(("unsupported type of validItem : " + (typeof validItems) + " - " + validItems)) }
@@ -221,7 +221,7 @@ Valy.prototype.toValid = function toValid (validItems, options) {
           break
         }
         if (typeof handle === 'function') {
-          var params = utils.query2obj("value=" + (this.rawValue) + "&" + (toFindHandle[1] || ''));
+          var params = utils.query2obj("value=" + (this.value) + "&" + (toFindHandle[1] || ''));
           var handleFnRes = handle(params);
           toValidResult = this.toValid(handleFnRes);
         } else {
@@ -246,13 +246,11 @@ Valy.prototype.valid = function valid (validItems) {
   return this
 };
 
-// TODO format
-
 // 对值进行格式化
 Valy.prototype.format = function format (fn) {
     if ( fn === void 0 ) fn = function (_) { return _; };
 
-  this.rawValue = fn(this.rawValue);
+  this.value = fn(this.value);
   return this
 };
 
@@ -273,8 +271,10 @@ Valy.prototype.not = function not (assertResult) {
 
   return this.result !== assertResult
 };
-Valy.prototype.getRes = function getRes () {
-  return this.errorMsg || this.result
+Valy.prototype.flush = function flush (key) {
+  return key
+    ? this[key]
+    : this.errorMsg || this.result
 };
 
 var maps = [];

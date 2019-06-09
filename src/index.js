@@ -18,8 +18,8 @@ class Valy {
       pass: false,
       result: null,
       errorMsg: null,
-      // TODO value, 每一步的结果 (比如在链式调用中穿插 format 函数)
       rawValue,
+      value: rawValue,
       validItems
     })
     return new Proxy(this, {
@@ -32,7 +32,7 @@ class Valy {
             const handle = findMap.get(key)
             this.valid(
               handle.bind
-                ? handle.bind(this, Object.assign({ value: this.rawValue }, params))
+                ? handle.bind(this, Object.assign({ value: this.value }, params))
                 : handle
             )
             return receiver
@@ -51,7 +51,7 @@ class Valy {
 
     const methods = {
       'function': () => {
-        const fnResult = validItems(this.rawValue)
+        const fnResult = validItems(this.value)
         return ['function', 'object'].includes(typeof fnResult)
           ? this.toValid(fnResult)
           : fnResult
@@ -62,7 +62,7 @@ class Valy {
           ? results.every(x => x === true)
           : results.some(x => x === true)
       },
-      'regexp': () => validItems.test(this.rawValue),
+      'regexp': () => validItems.test(this.value),
       'boolean': () => validItems,
       'undefined': () => false,
       'error': () => { throw new Error(`unsupported type of validItem : ${typeof validItems} - ${validItems}`) }
@@ -95,7 +95,7 @@ class Valy {
             break
           }
           if (typeof handle === 'function') {
-            const params = utils.query2obj(`value=${this.rawValue}&` + (toFindHandle[1] || ''))
+            const params = utils.query2obj(`value=${this.value}&` + (toFindHandle[1] || ''))
             const handleFnRes = handle(params)
             toValidResult = this.toValid(handleFnRes)
           } else {
@@ -120,11 +120,9 @@ class Valy {
     return this
   }
 
-  // TODO format
-
   // 对值进行格式化
   format (fn = _ => _) {
-    this.rawValue = fn(this.rawValue)
+    this.value = fn(this.value)
     return this
   }
 
@@ -141,8 +139,10 @@ class Valy {
   not (assertResult = false) {
     return this.result !== assertResult
   }
-  getRes () {
-    return this.errorMsg || this.result
+  flush (key) {
+    return key
+      ? this[key]
+      : this.errorMsg || this.result
   }
 }
 

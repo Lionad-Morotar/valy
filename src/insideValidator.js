@@ -55,6 +55,6 @@ export default {
 
   /** general */
 
-  // 必需值
   required: options => (!['null', 'undefined'].includes(options.value) ? /.+/.test(options.value) : '值缺失'),
+  // not: options => options.value !==
 }
