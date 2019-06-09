@@ -22,37 +22,6 @@ export default {
 
   /** utils */
 
-  query2obj,
-
-  /** common */
-
-  regex: {
-    count (countStr) {
-      if (countStr === '*') {
-        return '*'
-      } else {
-        return `{${countStr}}`
-      }
-    },
-    email: {
-      whiteLists: [
-        'qq.com',
-        '163.com',
-        'vip.163.com',
-        'sohu.com',
-        'sina.cn',
-        'sina.com',
-        'gmail.com',
-        'hotmail.com'
-      ]
-    },
-    number: {
-      areaLabelReflex: {
-        both: '-?',
-        neg: '-',
-        pos: ''
-      }
-    }
-  }
+  query2obj
 
 }

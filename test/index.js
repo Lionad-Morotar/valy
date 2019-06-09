@@ -28,23 +28,17 @@ const line = () => console.log('\n')
 // line()
 
 Valy.use({
-  max56 () {
-    console.log('max56')
-    return 'max?max=55'
-  },
-  min56 () {
-    console.log('min56')
-    return 'min?min=56'
-  },
-  maxmin: 'max56||min56',
+  max56: 'max?55',
+  min56: 'min?56',
   maxminRequired: 'max56||min56||required'
 })
 log(
   new Valy(55.01)
+    .not(49)
     .required()
     .number()
-    .min({ min: 55 })
-    .max({ max: 60 })
+    .min(55)
+    .max(60)
     .maxminRequired()
     .valid(/^55.01$/)
     .valid([_ => [ _ => [ _ => _ < 56 ] ]])

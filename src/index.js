@@ -1,6 +1,3 @@
-/* eslint-disable no-sequences */
-
-import utils from './utils'
 import insideValidator from './insideValidator.js'
 
 const DEFAULT_VALID_OPTIONS = { stragedy: 'and' }
@@ -13,7 +10,7 @@ const DEFAULT_VALID_OPTIONS = { stragedy: 'and' }
  * @param {Array, Regex, Function} validItems 待校验的选项
  */
 class Valy {
-  constructor (rawValue, validItems = []) {
+  constructor (rawValue = '', validItems = []) {
     Object.assign(this, {
       pass: false,
       result: null,
@@ -32,7 +29,7 @@ class Valy {
             const handle = findMap.get(key)
             this.valid(
               handle.bind
-                ? handle.bind(this, Object.assign({ value: this.value }, params))
+                ? handle.bind(this, params)
                 : handle
             )
             return receiver
@@ -81,22 +78,21 @@ class Valy {
         break
 
       case 'string':
-        // TODO replace params syntax `?name=val` with `(val)`
         // TODO eval((1&&1||2)||0)
         const validArr = validItems.split('||')
         if (validArr.length > 1) {
           toValidResult = this.toValid(validArr, Object.assign(options, { stragedy: 'or' }))
         } else {
           const toFindHandle = validItems.split('?')
-          const handle = maps.find(x => x.has(toFindHandle[0])).get(toFindHandle[0])
+          const [fnName, params] = [toFindHandle[0], (toFindHandle[1] || '').split(',')]
+          const handle = maps.find(x => x.has(fnName)).get(fnName)
           if (!handle) {
             toValidResult = false
             this.errorMsg = validItems
             break
           }
           if (typeof handle === 'function') {
-            const params = utils.query2obj(`value=${this.value}&` + (toFindHandle[1] || ''))
-            const handleFnRes = handle(params)
+            const handleFnRes = handle.bind({ value: this.value })(...params)
             toValidResult = this.toValid(handleFnRes)
           } else {
             toValidResult = this.toValid(handle)
@@ -110,8 +106,6 @@ class Valy {
 
     return toValidResult
   }
-
-  // 主动调用校验
   valid (validItems) {
     if (this.pass) return this
     if (!(this.result = this.toValid(validItems))) {
@@ -119,25 +113,9 @@ class Valy {
     }
     return this
   }
-
-  // 对值进行格式化
   format (fn = _ => _) {
     this.value = fn(this.value)
     return this
-  }
-
-  // 返回校验结果
-  exec () {
-    this.result = this.toValid()
-    return this.result
-  }
-
-  // 返回判断检验结果是否为某一特定的值
-  check (assertResult = true) {
-    return this.result === assertResult
-  }
-  not (assertResult = false) {
-    return this.result !== assertResult
   }
   flush (key) {
     return key
