@@ -35,24 +35,17 @@ var insideValidator = {
 var DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
 
 /** Valy
- * @description Valy校验器, 可以使用两种方式调用:
- *  1. new Valy('a1111', 'username').result
- *  2. new Valy('a1111').valid(['username', _ => _.length === 5]).check()
- * @param {Any} rawValue 待校验的值
- * @param {Array, Regex, Function} validItems 待校验的选项
+ * @param {Any} value 待校验的值
  */
-var Valy = function Valy (rawValue, validItems) {
+var Valy = function Valy (value) {
   var this$1 = this;
-  if ( rawValue === void 0 ) rawValue = '';
-  if ( validItems === void 0 ) validItems = [];
+  if ( value === void 0 ) value = '';
 
   Object.assign(this, {
     pass: false,
     result: null,
-    errorMsg: null,
-    rawValue: rawValue,
-    value: rawValue,
-    validItems: validItems
+    message: null,
+    value: value
   });
   return new Proxy(this, {
     get: function (target, key, receiver) {
@@ -78,9 +71,8 @@ var Valy = function Valy (rawValue, validItems) {
 // TODO async validate
 Valy.prototype.toValid = function toValid (validItems, options) {
     var this$1 = this;
-    if ( validItems === void 0 ) validItems = this.rawValidItems;
+    if ( validItems === void 0 ) validItems = [];
 
-  /** default value */
 
   options = Object.assign(DEFAULT_VALID_OPTIONS, options);
 
@@ -130,11 +122,11 @@ Valy.prototype.toValid = function toValid (validItems, options) {
         var handle = maps.find(function (x) { return x.has(fnName); }).get(fnName);
         if (!handle) {
           toValidResult = false;
-          this.errorMsg = validItems;
+          this.message = validItems;
           break
         }
         if (typeof handle === 'function') {
-          var handleFnRes = handle.bind({ value: this.value }).apply(void 0, params);
+          var handleFnRes = handle.bind(this).apply(void 0, params);
           toValidResult = this.toValid(handleFnRes);
         } else {
           toValidResult = this.toValid(handle);
@@ -164,7 +156,7 @@ Valy.prototype.format = function format (fn) {
 Valy.prototype.flush = function flush (key) {
   return key
     ? this[key]
-    : this.errorMsg || this.result
+    : this.message || this.result
 };
 
 var maps = [];

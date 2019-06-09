@@ -3,21 +3,15 @@ import insideValidator from './insideValidator.js'
 const DEFAULT_VALID_OPTIONS = { stragedy: 'and' }
 
 /** Valy
- * @description Valy校验器, 可以使用两种方式调用:
- *  1. new Valy('a1111', 'username').result
- *  2. new Valy('a1111').valid(['username', _ => _.length === 5]).check()
- * @param {Any} rawValue 待校验的值
- * @param {Array, Regex, Function} validItems 待校验的选项
+ * @param {Any} value 待校验的值
  */
 class Valy {
-  constructor (rawValue = '', validItems = []) {
+  constructor (value = '') {
     Object.assign(this, {
       pass: false,
       result: null,
-      errorMsg: null,
-      rawValue,
-      value: rawValue,
-      validItems
+      message: null,
+      value
     })
     return new Proxy(this, {
       get: (target, key, receiver) => {
@@ -39,8 +33,7 @@ class Valy {
   }
 
   // TODO async validate
-  toValid (validItems = this.rawValidItems, options) {
-    /** default value */
+  toValid (validItems = [], options) {
 
     options = Object.assign(DEFAULT_VALID_OPTIONS, options)
 
@@ -88,11 +81,11 @@ class Valy {
           const handle = maps.find(x => x.has(fnName)).get(fnName)
           if (!handle) {
             toValidResult = false
-            this.errorMsg = validItems
+            this.message = validItems
             break
           }
           if (typeof handle === 'function') {
-            const handleFnRes = handle.bind({ value: this.value })(...params)
+            const handleFnRes = handle.bind(this)(...params)
             toValidResult = this.toValid(handleFnRes)
           } else {
             toValidResult = this.toValid(handle)
@@ -120,7 +113,7 @@ class Valy {
   flush (key) {
     return key
       ? this[key]
-      : this.errorMsg || this.result
+      : this.message || this.result
   }
 }
 
