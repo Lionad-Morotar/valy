@@ -10,10 +10,11 @@ const Valy = require('../dist/index')
 
 // user-defined validators & useful default validators
 const userDefinedValidator = {
+  required: /.+/,
   interger: /^-?\d+$/,
   float: /^-?\d*.\d*$/,
   number: 'interger||float',
-  maxminRequired: 'max56||min56||required',
+  demo1: 'max?123||min?122||required',
   max (max) {
     return ['notNaN', +this.value < max]
   },
@@ -25,12 +26,6 @@ Valy.use(userDefinedValidator)
 
 // demo
 new Valy([1,2,3])
-  .every(_ => _ >= 1)
-  .some(_ => _ === 3)
-  .has(1)
-  .format(_ => '3')
-  .has(3)
-  .format()
   .every(_ => _ >= 1)
   .some(_ => _ === 3)
   .flush()
@@ -45,8 +40,15 @@ const task = () => new Promise(resolve => {
 new Valy('123')
   .validAsync(task().then(() => 'has?3'))
   .then(valy => {
-    if (valy.flush()) {
-      doSomethingHere()
-    }
+    valy
+      .number()
+      .demo1()
+      .flush()
+    && doSomethingHere()
   })
 ```
+
+## TODO
+
+- validate form
+- error message
