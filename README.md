@@ -50,6 +50,14 @@ new Valy('123')
   })
 ```
 
+## develop env
+
+1. `npm install`
+2. `npm run dev`
+3. `nodemon ./test`
+
+![开发环境](assets/2019-06-10-13-44-38.png)
+
 ## TODO
 
 - validate form data
