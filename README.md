@@ -27,7 +27,7 @@ Valy.use(userDefinedValidator)
 // demo
 new Valy([1,2,3])
   .every(_ => _ >= 1)
-  .some(_ => _ === 3)
+  .msg('not every item >= 1')
   .flush()
 && doSomethingHere()
 
@@ -42,7 +42,9 @@ new Valy('123')
   .then(valy => {
     valy
       .number()
+      .msg('not a number')
       .demo1()
+      .msg('demo1 test failed')
       .flush()
     && doSomethingHere()
   })
@@ -50,5 +52,4 @@ new Valy('123')
 
 ## TODO
 
-- validate form
-- error message
+- validate form data
