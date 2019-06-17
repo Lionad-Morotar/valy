@@ -5,7 +5,8 @@
   "main": "./lib/index.min.js",
   "scripts": {
     "dev": "rollup -c build/rollup.dev.config.js --watch",
-    "lib": "rollup -c build/rollup.lib.config.js"
+    "lib": "rollup -c build/rollup.lib.config.js",
+    "exec": "nodemon ./test"
   },
   "repository": {
     "type": "git",

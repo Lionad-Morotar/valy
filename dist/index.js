@@ -56,7 +56,7 @@ const DEFAULT_VALID_OPTIONS = { stragedy: 'and' };
 class Valy {
   constructor (value = '') {
     Object.assign(this, {
-      store: new WeakMap([
+      store: new Map([
         ['value', value]
       ]),
       pass: false,
