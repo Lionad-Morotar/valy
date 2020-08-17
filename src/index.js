@@ -1,6 +1,4 @@
-import insideValidator from './insideValidator.js'
-
-const DEFAULT_VALID_OPTIONS = { stragedy: 'and' }
+import defaultValidator from './defaultValidator.js'
 
 /** Valy
  * @param {Any} value 待校验的值
@@ -36,7 +34,7 @@ class Valy {
   }
 
   toValid (validators = [], options = {}) {
-    options = Object.assign(DEFAULT_VALID_OPTIONS, options)
+    options = Object.assign({ stragedy: 'and' }, options)
     const value = options.value || this.value
 
     /** const */
@@ -132,6 +130,6 @@ class Valy {
 
 const maps = []
 Valy.use = models => maps.unshift(new Map(Object.entries(models)))
-Valy.use(insideValidator)
+Valy.use(defaultValidator)
 
 export default Valy
