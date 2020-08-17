@@ -22,10 +22,10 @@ export default {
   /** array */
   
   some (_) { 
-    return this.value.some(x => this.toValid(_, { value: x })) 
+    return this.value.some(x => this._valid(_, { value: x })) 
   },
   every (_) { 
-    return this.value.every(x => this.toValid(_, { value: x })) 
+    return this.value.every(x => this._valid(_, { value: x })) 
   },
 
   /** general */
