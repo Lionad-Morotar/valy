@@ -1,10 +1,15 @@
 /* eslint-disable */
 
-// import mdDemo from '../res/md.demo'
 const Valy = require('../dist/index')
 
-const log = console.log
+
 const line = () => console.log('\n')
+const log = (...args) => (line(), console.log(...args))
+
+log(
+  '[default validators should work correctly] every, some, has : ',
+  require('./every-some')
+)
 
 // log(new Valy().valid('required').getRes())
 
@@ -37,7 +42,6 @@ const line = () => console.log('\n')
 //   .then(res => console.log(res.flush()))
 
 Valy.use({
-  // TODO test this.value
   max56: 'max?55',
   min56: 'min?56',
   maxminRequired: 'max56||min56||required'
@@ -64,14 +68,5 @@ log(
   //   .format(_ => 1)
   //   .valid(setTimeout(() => 'is?1', 1))
   //   .flush(),
-  new Valy([1,2,3])
-    .every(_ => _ >= 1)
-    .some(_ => _ === 3)
-    .has(1)
-    .format(_ => '3')
-    .has(3)
-    .format()
-    .every(_ => _ >= 1)
-    .some(_ => _ === 3)
-    .flush(),
+  
 )
